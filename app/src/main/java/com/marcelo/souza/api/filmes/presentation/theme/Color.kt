@@ -1,4 +1,4 @@
-package com.marcelo.souza.api.filmes.ui.theme
+package com.marcelo.souza.api.filmes.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 
