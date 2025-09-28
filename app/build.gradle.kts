@@ -71,11 +71,13 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.coil.images)
     ksp(libs.koin.ksp.compiler)
     implementation(libs.bundles.koin)
     implementation(libs.bundles.coroutines)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.bundles.navigation3)
+    implementation(libs.bundles.ktor)
 
     testImplementation(libs.junit)
     testImplementation(libs.coroutines.test)
