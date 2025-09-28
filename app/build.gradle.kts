@@ -78,7 +78,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.bundles.navigation3)
     implementation(libs.bundles.ktor)
-
+    implementation(libs.compose.alert.dialog)
     testImplementation(libs.junit)
     testImplementation(libs.coroutines.test)
     testImplementation(libs.mockk.io)
