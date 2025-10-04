@@ -1,3 +1,9 @@
 <resources>
+    <!-- App name-->
     <string name="app_name">Api Filmes</string>
+
+    <!-- Title topAppBar -->
+    <string name="title_movies_top_app_bar">Filmes</string>
+    <string name="title_movies_details_top_app_bar">Detalhes</string>
+    <string name="title_movies_details_cast">Atores</string>
 </resources>
