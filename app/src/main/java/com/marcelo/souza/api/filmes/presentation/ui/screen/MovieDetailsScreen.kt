@@ -3,6 +3,7 @@ package com.marcelo.souza.api.filmes.presentation.ui.screen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,39 +20,53 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil3.ImageLoader
 import coil3.compose.AsyncImage
+import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.marcelo.souza.api.filmes.R
+import com.marcelo.souza.api.filmes.domain.model.DetailsMovieViewData
 import com.marcelo.souza.api.filmes.presentation.components.TopAppBarComponent
 import com.marcelo.souza.api.filmes.presentation.theme.ApiMoviesTheme
+import com.marcelo.souza.api.filmes.presentation.theme.LocalDimens
+import com.marcelo.souza.api.filmes.presentation.utils.Constants.MOVIE_CARD_IMAGE_ASPECT_RATIO
 
 @Composable
 fun MovieDetailsScreen(
-    title: String,
-    description: String,
-    cast: String,
-    imageUrlOrRes: Any? = null,
+    movie: DetailsMovieViewData,
     onBackClick: () -> Unit = {}
 ) {
+    val dimen = LocalDimens.current
     val scrollState = rememberScrollState()
-    val windowInfo = LocalWindowInfo.current
-    val screenWidth = windowInfo.containerSize.width
-    val responsiveHeight = (screenWidth * 0.45f).dp
+    val context = LocalContext.current
+
+    val imageLoader = remember {
+        ImageLoader.Builder(context)
+            .components {
+                add(OkHttpNetworkFetcherFactory())
+            }
+            .crossfade(true)
+            .build()
+    }
+
+    val imageRequest = remember(movie.imageUrl) {
+        ImageRequest.Builder(context)
+            .data(movie.imageUrl)
+            .crossfade(true)
+            .build()
+    }
 
     Scaffold(
         topBar = {
             TopAppBarComponent(
-                title = stringResource(R.string.title_movies_details_top_app_bar),
+                title = movie.name,
                 showBackButton = true,
                 onBackClick = onBackClick
             )
@@ -64,115 +79,72 @@ fun MovieDetailsScreen(
                 .verticalScroll(scrollState)
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            MovieCover(
-                image = imageUrlOrRes,
-                contentDescription = title,
+            Surface(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(responsiveHeight)
-                    .padding(bottom = dimensionResource(R.dimen.size_16))
-            )
-
-            DetailsContent(
-                titleText = title,
-                descriptionText = description,
-                castText = cast,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = dimensionResource(R.dimen.size_16))
-            )
-
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.size_24)))
-        }
-    }
-}
-
-@Composable
-private fun MovieCover(
-    image: Any?,
-    contentDescription: String?,
-    modifier: Modifier = Modifier
-) {
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(
-            bottomStart = dimensionResource(R.dimen.size_16),
-            bottomEnd = dimensionResource(R.dimen.size_16)
-        ),
-        tonalElevation = 2.dp
-    ) {
-        MovieImage(
-            image = image,
-            contentDescription = contentDescription
-        )
-    }
-}
-
-@Composable
-private fun MovieImage(image: Any?, contentDescription: String?) {
-    val context = LocalContext.current
-    val placeholder = painterResource(id = R.drawable.loading)
-    val error = painterResource(id = android.R.drawable.ic_menu_report_image)
-
-    val request = remember(image) {
-        ImageRequest.Builder(context)
-            .data(image ?: R.drawable.preview)
-            .crossfade(true)
-            .crossfade(300)
-            .build()
-    }
-
-    AsyncImage(
-        model = request,
-        contentDescription = contentDescription,
-        modifier = Modifier.fillMaxWidth(),
-        contentScale = ContentScale.Crop,
-        placeholder = placeholder,
-        error = error
-    )
-}
-
-@Composable
-private fun DetailsContent(
-    titleText: String,
-    descriptionText: String,
-    castText: String,
-    modifier: Modifier = Modifier
-) {
-    Column(modifier = modifier) {
-        Text(
-            text = titleText,
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(bottom = dimensionResource(R.dimen.size_8))
-        )
-
-        Text(
-            text = descriptionText,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(bottom = dimensionResource(R.dimen.size_16))
-        )
-
-        Text(
-            text = buildAnnotatedString {
-                withStyle(
-                    style = MaterialTheme.typography.titleMedium.toSpanStyle().copy(
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                ) {
-                    append(stringResource(R.string.title_movies_details_cast))
-                    append(" ")
-                }
-                withStyle(
-                    style = MaterialTheme.typography.bodyLarge.toSpanStyle()
-                        .copy(color = MaterialTheme.colorScheme.onSurface)
-                ) {
-                    append(castText)
-                }
+                    .fillMaxWidth(),
+                shape = RoundedCornerShape(
+                    bottomStart = dimen.size16,
+                    bottomEnd = dimen.size16
+                ),
+                tonalElevation = 2.dp
+            ) {
+                AsyncImage(
+                    model = imageRequest,
+                    contentDescription = movie.name,
+                    modifier = Modifier
+                        .aspectRatio(MOVIE_CARD_IMAGE_ASPECT_RATIO)
+                        .fillMaxWidth(),
+                    contentScale = ContentScale.Crop,
+                    imageLoader = imageLoader,
+                    placeholder = null,
+                    error = null
+                )
             }
-        )
+
+            Spacer(modifier = Modifier.height(dimen.size16))
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = dimen.size16)
+            ) {
+                Text(
+                    text = movie.name,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(bottom = dimen.size8)
+                )
+
+                Text(
+                    text = movie.description,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(bottom = dimen.size16)
+                )
+
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(
+                            style = MaterialTheme.typography.titleMedium.toSpanStyle().copy(
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        ) {
+                            append(stringResource(R.string.title_movies_details_cast))
+                            append(" ")
+                        }
+                        withStyle(
+                            style = MaterialTheme.typography.bodyLarge.toSpanStyle()
+                                .copy(color = MaterialTheme.colorScheme.onSurface)
+                        ) {
+                            append(movie.cast)
+                        }
+                    }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(dimen.size24))
+        }
     }
 }
 
@@ -181,10 +153,14 @@ private fun DetailsContent(
 fun MovieDetailsScreenPreviewDark() {
     ApiMoviesTheme(darkTheme = true) {
         MovieDetailsScreen(
-            title = "House of the Dragon",
-            description = "A luta pelo Trono de Ferro começa muito antes de Game of Thrones. Fogo, sangue e destino se entrelaçam.",
-            cast = "Emma D'Arcy, Matt Smith",
-            imageUrlOrRes = R.drawable.preview
+            movie = DetailsMovieViewData(
+                id = 1,
+                name = "House of the Dragon",
+                imageUrl = "urlImagem",
+                description = "A luta pelo Trono de Ferro começa muito antes de Game of Thrones. " +
+                        "Fogo, sangue e destino se entrelaçam.",
+                cast = "Emma D'Arcy, Matt Smith"
+            )
         )
     }
 }
@@ -194,10 +170,14 @@ fun MovieDetailsScreenPreviewDark() {
 fun MovieDetailsScreenPreviewLight() {
     ApiMoviesTheme(darkTheme = false) {
         MovieDetailsScreen(
-            title = "House of the Dragon",
-            description = "A luta pelo Trono de Ferro começa muito antes de Game of Thrones. Fogo, sangue e destino se entrelaçam.",
-            cast = "Emma D'Arcy, Matt Smith",
-            imageUrlOrRes = R.drawable.preview
+            movie = DetailsMovieViewData(
+                id = 1,
+                name = "House of the Dragon",
+                imageUrl = "urlImagem",
+                description = "A luta pelo Trono de Ferro começa muito antes de Game of Thrones. " +
+                        "Fogo, sangue e destino se entrelaçam.",
+                cast = "Emma D'Arcy, Matt Smith"
+            )
         )
     }
 }

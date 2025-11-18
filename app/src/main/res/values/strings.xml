@@ -5,5 +5,20 @@
     <!-- Title topAppBar -->
     <string name="title_movies_top_app_bar">Filmes</string>
     <string name="title_movies_details_top_app_bar">Detalhes</string>
-    <string name="title_movies_details_cast">Atores</string>
+    <string name="title_movies_details_cast">Atores:</string>
+
+    <!-- Títles dialogs -->
+    <string name="title_show_movies_error_dialog">Carregar filmes</string>
+    <string name="message_show_movies_error_dialog">Ocorreu um erro ao buscar os filmes. Você pode tentar novamente.</string>
+    <string name="title_show_movies_network_error_dialog">Sem conexão</string>
+    <string name="message_show_movies_network_error_dialog">
+    Não foi possível carregar os filmes. Verifique sua conexão com a internet e tente novamente.
+    </string>
+    <string name="title_show_movies_unexpected_error_dialog">Erro inesperado</string>
+    <string name="message_show_movies_unexpected_error_dialog">
+    Um erro inesperado aconteceu ao carregar os filmes. Tente novamente mais tarde.
+    </string>
+    <string name="txt_btn_negative_cancel_dialog">Cancelar</string>
+    <string name="txt_btn_positive_try_again_error_dialog">Tentar novamente</string>
+    <string name="txt_btn_neutral_error_server_dialog">OK</string>
 </resources>

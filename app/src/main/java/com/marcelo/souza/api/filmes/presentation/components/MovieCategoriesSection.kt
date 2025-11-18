@@ -1,10 +1,11 @@
 package com.marcelo.souza.api.filmes.presentation.components
 
 import android.content.res.Configuration
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,67 +16,74 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil3.ImageLoader
 import coil3.compose.AsyncImage
-import com.marcelo.souza.api.filmes.R
+import coil3.network.okhttp.OkHttpNetworkFetcherFactory
+import coil3.request.ImageRequest
+import coil3.request.crossfade
+import com.marcelo.souza.api.filmes.domain.model.CategoryViewData
+import com.marcelo.souza.api.filmes.domain.model.DetailsMovieViewData
 import com.marcelo.souza.api.filmes.presentation.theme.ApiMoviesTheme
+import com.marcelo.souza.api.filmes.presentation.theme.LocalDimens
 import com.marcelo.souza.api.filmes.presentation.utils.Constants.MOVIE_CARD_ASPECT_RATIO
 
 @Composable
 fun MovieCategoriesSectionComponent(
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(0.dp)
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    categories: List<CategoryViewData>,
+    onMovieClick: (DetailsMovieViewData) -> Unit
 ) {
+    val dimen = LocalDimens.current
+
     LazyColumn(
         modifier = modifier,
         contentPadding = contentPadding
     ) {
         items(
-            count = 4,
-            key = { categoriesIndex -> "category_$categoriesIndex" }
-        ) { categoriesIndex ->
+            items = categories,
+            key = { category -> "category_${category.id}" }
+        ) { category ->
             Column(
                 modifier = Modifier
-                    .padding(bottom = dimensionResource(R.dimen.size_16))
+                    .padding(bottom = dimen.size16)
                     .animateItem()
             ) {
                 Text(
-                    text = "Ação",
+                    text = category.title,
                     style = MaterialTheme.typography.headlineSmall,
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier
                         .testTag("titleCategory")
                         .padding(
-                            start = dimensionResource(R.dimen.size_8),
-                            bottom = dimensionResource(R.dimen.size_8)
+                            start = dimen.size8,
+                            bottom = dimen.size8
                         )
                 )
 
                 LazyRow(
                     contentPadding = PaddingValues(
-                        horizontal = dimensionResource(R.dimen.size_8)
+                        horizontal = dimen.size8
                     )
                 ) {
                     items(
-                        items = List(6) { it },
-                        key = { movieIndex -> "category_${categoriesIndex}_movie_$movieIndex" }
-                    ) { movieIndex ->
+                        items = category.cover,
+                        key = { movie -> "category_${category.id}_movie_${movie.id}" }
+                    ) { movie ->
                         MovieCard(
                             modifier = Modifier
-                                .padding(end = dimensionResource(R.dimen.size_8))
-                                .width(dimensionResource(R.dimen.size_120))
-                                .aspectRatio(MOVIE_CARD_ASPECT_RATIO),
-                            posterRes = R.drawable.preview,
-                            posterDescription = "Cartaz do filme $movieIndex"
+                                .padding(end = dimen.size8)
+                                .width(dimen.size120),
+                            posterUrl = movie.imageUrl,
+                            onClick = { onMovieClick(movie) }
                         )
                     }
                 }
@@ -87,30 +95,41 @@ fun MovieCategoriesSectionComponent(
 @Composable
 fun MovieCard(
     modifier: Modifier = Modifier,
-    posterRes: Int,
-    posterDescription: String
+    posterUrl: String,
+    onClick: () -> Unit = {}
 ) {
-    val placeholderPainter = painterResource(id = R.drawable.loading)
-    val errorPainter = painterResource(id = android.R.drawable.ic_menu_report_image)
+    val dimen = LocalDimens.current
+    val context = LocalContext.current
+
+    val imageLoader = remember {
+        ImageLoader.Builder(context)
+            .components {
+                add(OkHttpNetworkFetcherFactory())
+            }
+            .crossfade(true)
+            .build()
+    }
 
     Card(
-        modifier = modifier.testTag("cardMovie"),
+        modifier = modifier
+            .testTag("cardMovie")
+            .aspectRatio(MOVIE_CARD_ASPECT_RATIO)
+            .clickable(onClick = onClick),
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = dimensionResource(R.dimen.size_4))
+        elevation = CardDefaults.cardElevation(defaultElevation = dimen.size4)
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            AsyncImage(
-                model = posterRes,
-                contentDescription = posterDescription,
-                placeholder = placeholderPainter,
-                error = errorPainter,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .semantics { contentDescription = posterDescription }
-            )
-        }
+        AsyncImage(
+            model = ImageRequest.Builder(context)
+                .data(posterUrl)
+                .crossfade(true)
+                .build(),
+            contentDescription = null,
+            contentScale = ContentScale.FillBounds,
+            error = painterResource(android.R.drawable.ic_menu_report_image),
+            imageLoader = imageLoader,
+            modifier = Modifier.fillMaxSize()
+        )
     }
 }
 
@@ -122,11 +141,14 @@ fun MovieCard(
 @Composable
 fun CategoriesMoviesListPreviewDark() {
     ApiMoviesTheme(darkTheme = true) {
+        val dimen = LocalDimens.current
         MovieCategoriesSectionComponent(
             modifier = Modifier
-                .padding(horizontal = dimensionResource(R.dimen.size_8))
-                .padding(top = dimensionResource(R.dimen.size_8)),
-            contentPadding = PaddingValues(8.dp)
+                .padding(horizontal = dimen.size8)
+                .padding(top = dimen.size8),
+            contentPadding = PaddingValues(8.dp),
+            categories = mockCategoryData,
+            onMovieClick = {}
         )
     }
 }
@@ -138,11 +160,85 @@ fun CategoriesMoviesListPreviewDark() {
 @Composable
 fun CategoriesMoviesListPreviewLight() {
     ApiMoviesTheme {
+        val dimen = LocalDimens.current
         MovieCategoriesSectionComponent(
             modifier = Modifier
-                .padding(horizontal = dimensionResource(R.dimen.size_8))
-                .padding(top = dimensionResource(R.dimen.size_8)),
-            contentPadding = PaddingValues(8.dp)
+                .padding(horizontal = dimen.size8)
+                .padding(top = dimen.size8),
+            contentPadding = PaddingValues(8.dp),
+            categories = mockCategoryData,
+            onMovieClick = {}
         )
     }
 }
+
+private val mockCategoryData = listOf(
+    CategoryViewData(
+        id = 1,
+        title = "Filmes de ação",
+        cover = listOf(
+            DetailsMovieViewData(
+                id = 7,
+                name = "Hanna",
+                imageUrl = "https://stackmobile.com.br/wp-content/uploads/2022/10/filme.jpg",
+                description = "Descrição de Ação 1",
+                cast = "Elenco de Ação 1"
+            ),
+            DetailsMovieViewData(
+                id = 8,
+                name = "Projeto Gemini",
+                imageUrl = "https://stackmobile.com.br/wp-content/uploads/2022/10/filme2.jpg",
+                description = "Descrição de Ação 2",
+                cast = "Elenco de Ação 2"
+            ),
+            DetailsMovieViewData(
+                id = 9,
+                name = "Rambo",
+                imageUrl = "https://stackmobile.com.br/wp-content/uploads/2022/10/filme3.jpg",
+                description = "Descrição de Ação 3",
+                cast = "Elenco de Ação 3"
+            ),
+            DetailsMovieViewData(
+                id = 10,
+                name = "J. Wick",
+                imageUrl = "https://stackmobile.com.br/wp-content/uploads/2022/10/filme4.jpg",
+                description = "Descrição de Ação 4",
+                cast = "Elenco de Ação 4"
+            ),
+        )
+    ),
+    CategoryViewData(
+        id = 2,
+        title = "Aventura",
+        cover = listOf(
+            DetailsMovieViewData(
+                id = 11,
+                name = "Mumia",
+                imageUrl = "https://stackmobile.com.br/wp-content/uploads/2022/10/filme5.jpg",
+                description = "Descrição de Aventura 1",
+                cast = "Elenco de Aventura 1"
+            ),
+            DetailsMovieViewData(
+                id = 12,
+                name = "Sete Anos no Tibet",
+                imageUrl = "https://stackmobile.com.br/wp-content/uploads/2022/10/filme6.jpg",
+                description = "Descrição de Aventura 2",
+                cast = "Elenco de Aventura 2"
+            ),
+            DetailsMovieViewData(
+                id = 13,
+                name = "Mercenários",
+                imageUrl = "https://stackmobile.com.br/wp-content/uploads/2022/10/filme7.jpg",
+                description = "Descrição de Aventura 3",
+                cast = "Elenco de Aventura 3"
+            ),
+            DetailsMovieViewData(
+                id = 14,
+                name = "Indiana",
+                imageUrl = "https://stackmobile.com.br/wp-content/uploads/2022/10/filme.jpg",
+                description = "Descrição de Aventura 4",
+                cast = "Elenco de Aventura 4"
+            ),
+        )
+    )
+)

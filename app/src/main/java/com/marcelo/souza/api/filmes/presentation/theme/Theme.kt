@@ -9,9 +9,44 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+
+@Composable
+fun ApiMoviesTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    dynamicColor: Boolean = false,
+    content: @Composable () -> Unit
+) {
+    val colorScheme = when {
+        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            val context = LocalContext.current
+            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        }
+
+        darkTheme -> DarkColorScheme
+        else -> LightColorScheme
+    }
+
+    val appColors = remember(darkTheme) {
+        if (darkTheme) DefaultDarkAppColors else DefaultLightAppColors
+    }
+
+    val dimens = remember { Dimens() }
+
+    CompositionLocalProvider(
+        LocalAppColors provides appColors,
+        LocalDimens provides dimens
+    ) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography,
+            content = content
+        )
+    }
+}
 
 data class AppColors(
     val accent: Color,
@@ -71,34 +106,3 @@ private val DarkColorScheme = darkColorScheme(
     onBackground = White,
     onSurface = White
 )
-
-@Composable
-fun ApiMoviesTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
-) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
-
-    val appColors = if (darkTheme) {
-        DefaultDarkAppColors
-    } else {
-        DefaultLightAppColors
-    }
-
-    CompositionLocalProvider(LocalAppColors provides appColors) {
-        MaterialTheme(
-            colorScheme = colorScheme,
-            typography = Typography,
-            content = content
-        )
-    }
-}
