@@ -10,6 +10,7 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.SerializationException
+import org.koin.core.annotation.Single
 import java.io.IOException
 import java.nio.channels.UnresolvedAddressException
 

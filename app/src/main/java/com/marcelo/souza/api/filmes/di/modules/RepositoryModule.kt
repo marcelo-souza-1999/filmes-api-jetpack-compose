@@ -7,7 +7,6 @@ import org.koin.core.annotation.Module
 import org.koin.core.annotation.Single
 
 @Module
-@Single
 class RepositoryModule {
     @Single
     fun providesMoviesRepository(

@@ -11,11 +11,9 @@ import kotlinx.serialization.json.Json
 import org.koin.core.annotation.Module
 import org.koin.core.annotation.Named
 import org.koin.core.annotation.Single
-import org.koin.core.component.KoinComponent
 
 @Module
-@Single
-class KtorModule : KoinComponent {
+class KtorModule {
 
     @Single
     fun provideJson(): Json = Json {

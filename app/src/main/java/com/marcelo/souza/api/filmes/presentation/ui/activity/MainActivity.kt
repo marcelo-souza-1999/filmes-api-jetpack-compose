@@ -13,7 +13,6 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
-import androidx.navigation3.scene.rememberSceneSetupNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.marcelo.souza.api.filmes.domain.model.DetailsMovieViewData
 import com.marcelo.souza.api.filmes.presentation.theme.ApiMoviesTheme
@@ -43,7 +42,6 @@ fun StartNavigation(onFinish: () -> Unit) {
 
     NavDisplay(
         backStack = backStack,
-        entryDecorators = listOf(rememberSceneSetupNavEntryDecorator()),
         transitionSpec = {
             ContentTransform(
                 targetContentEnter = fadeIn(tween(durationMillis = DURATION_MS)) + slideInHorizontally(
