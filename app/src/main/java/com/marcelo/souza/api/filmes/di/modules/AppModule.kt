@@ -1,4 +1,4 @@
-package com.marcelo.souza.api.filmes.di
+package com.marcelo.souza.api.filmes.di.modules
 
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module
