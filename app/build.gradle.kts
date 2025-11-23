@@ -98,6 +98,7 @@ dependencies {
     androidTestImplementation(libs.mockk.android)
     androidTestImplementation(libs.shot.android)
     androidTestImplementation(libs.bundles.koin.test)
+    androidTestImplementation(libs.coil.test)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)

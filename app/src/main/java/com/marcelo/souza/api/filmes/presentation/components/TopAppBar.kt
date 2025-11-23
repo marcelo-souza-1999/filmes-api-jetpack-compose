@@ -45,7 +45,8 @@ fun TopAppBarComponent(
                 IconButton(
                     onClick = {
                         onBackClick?.invoke() ?: backDispatcher?.onBackPressed()
-                    }
+                    },
+                    modifier = Modifier.testTag("topAppBarBackButton")
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,

@@ -68,6 +68,7 @@ koin-compose = { group = "io.insert-koin", name = "koin-androidx-compose", versi
 koin-ksp-compiler = { group = "io.insert-koin", name = "koin-ksp-compiler", version.ref = "koin-annotations" }
 coil-images = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil-images"}
 coil-images-network = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil-images"}
+coil-test = { group = "io.coil-kt.coil3", name = "coil-test", version.ref = "coil-images"}
 compose-alert-dialog = { group = "com.github.PratikFagadiya", name = "FancyJetpackComposeDialog", version.ref = "composeAlertDialog" }
 koin-test = { group = "io.insert-koin", name = "koin-test", version.ref = "koin" }
 koin-test-junit = { group = "io.insert-koin", name = "koin-test-junit4", version.ref = "koin" }
