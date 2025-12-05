@@ -27,7 +27,7 @@ mockk = "1.14.6"
 mockk-android = "1.14.6"
 espressoCore = "3.7.0"
 shot = "6.1.0"
-swiperefreshlayout = "1.1.0"
+swiperefreshlayout = "1.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
